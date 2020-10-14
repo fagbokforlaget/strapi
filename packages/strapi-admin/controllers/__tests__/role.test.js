@@ -147,7 +147,14 @@ describe('Role controller', () => {
     test('Assign permissions if input is valid', async () => {
       const roleID = 1;
       const findOneRole = jest.fn(() => Promise.resolve({ id: roleID }));
-      const assignPermissions = jest.fn((roleID, permissions) => Promise.resolve(permissions));
+      const assignPermissions = jest.fn((roleID, permissions) =>
+        Promise.resolve({
+          addedPermissions: permissions,
+          deletedPermissions: [],
+          newExistingPermissions: permissions,
+        })
+      );
+      const sendDidUpdateRolePermissions = jest.fn();
       const inputPermissions = [
         {
           action: 'test',
@@ -167,6 +174,9 @@ describe('Role controller', () => {
       global.strapi = {
         admin: {
           services: {
+            metrics: {
+              sendDidUpdateRolePermissions,
+            },
             role: {
               findOne: findOneRole,
               getSuperAdmin: jest.fn(() => undefined),
